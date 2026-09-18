@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { WATCH_BRANDS } from '../watchFilter'
 
 interface Props {
   keywords: string[]
@@ -7,6 +8,8 @@ interface Props {
   onRemove: (keyword: string) => void
   onSelect: (keyword: string) => void
 }
+
+const SORTED_BRANDS = [...WATCH_BRANDS].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 
 export function KeywordManager({ keywords, selected, onAdd, onRemove, onSelect }: Props) {
   const [draft, setDraft] = useState('')
@@ -17,6 +20,13 @@ export function KeywordManager({ keywords, selected, onAdd, onRemove, onSelect }
     if (!trimmed) return
     onAdd(trimmed)
     setDraft('')
+  }
+
+  function handleBrandSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const brand = e.target.value
+    if (!brand) return
+    onAdd(brand)
+    e.target.value = ''
   }
 
   return (
@@ -37,6 +47,21 @@ export function KeywordManager({ keywords, selected, onAdd, onRemove, onSelect }
           Adicionar
         </button>
       </form>
+
+      <select
+        defaultValue=""
+        onChange={handleBrandSelect}
+        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500/25"
+      >
+        <option value="" disabled>
+          Ou selecione uma marca…
+        </option>
+        {SORTED_BRANDS.map((brand) => (
+          <option key={brand} value={brand}>
+            {brand}
+          </option>
+        ))}
+      </select>
 
       <ul className="flex flex-wrap gap-2">
         {keywords.length === 0 && <li className="text-sm text-slate-400">Nenhuma palavra-chave ainda</li>}
