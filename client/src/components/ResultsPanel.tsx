@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { KeywordState } from '../types'
 import { ListingCard } from './ListingCard'
 import { SOURCE_LABEL } from '../sourceLabels'
+import { isLikelyWatch } from '../watchFilter'
+import { Toggle } from './Toggle'
 
 interface Props {
   keyword: string | null
@@ -18,6 +20,7 @@ export function ResultsPanel({ keyword, state }: Props) {
   const [sortOrder, setSortOrder] = useState<SortOrder>('none')
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
+  const [onlyWatches, setOnlyWatches] = useState(true)
 
   useEffect(() => {
     setPage(1)
@@ -25,12 +28,14 @@ export function ResultsPanel({ keyword, state }: Props) {
 
   useEffect(() => {
     setPage(1)
-  }, [sortOrder, minPrice, maxPrice])
+  }, [sortOrder, minPrice, maxPrice, onlyWatches])
 
   const min = minPrice.trim() === '' ? null : Number(minPrice)
   const max = maxPrice.trim() === '' ? null : Number(maxPrice)
 
-  const items = allItems
+  const watchFilteredItems = onlyWatches ? allItems.filter((item) => isLikelyWatch(item.title)) : allItems
+
+  const items = watchFilteredItems
     .filter((item) => {
       if (min === null && max === null) return true
       const value = item.price ? Number(item.price.value) : NaN
@@ -93,6 +98,11 @@ export function ResultsPanel({ keyword, state }: Props) {
 
       {allItems.length > 0 && (
         <div className="flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-3.5">
+          <Toggle
+            checked={onlyWatches}
+            onChange={() => setOnlyWatches((prev) => !prev)}
+            label="Somente relógios"
+          />
           <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
             Preço mín. (R$)
             <input
@@ -160,9 +170,11 @@ export function ResultsPanel({ keyword, state }: Props) {
 
       {!state?.loading && items.length === 0 && !state?.error && (
         <p className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
-          {allItems.length > 0
-            ? 'Nenhum anúncio dentro da faixa de preço selecionada.'
-            : 'Nenhum anúncio encontrado para essa palavra-chave ainda.'}
+          {allItems.length === 0
+            ? 'Nenhum anúncio encontrado para essa palavra-chave ainda.'
+            : watchFilteredItems.length === 0
+              ? 'Nenhum anúncio identificado como relógio. Desligue "Somente relógios" pra ver todos os resultados.'
+              : 'Nenhum anúncio dentro da faixa de preço selecionada.'}
         </p>
       )}
 
