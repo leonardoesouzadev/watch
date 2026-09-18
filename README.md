@@ -16,6 +16,11 @@ novos desde a última busca.
     "RELÓGIO/PARTE" (evita varrer milhares de lotes de outras categorias) e
     busca a descrição detalhada só desses. Resultado fica em cache 30 min no
     servidor, já que montar o índice varre vários endpoints.
+  - **OLX** — scraping direto da busca (`olx.com.br/brasil?q=...`). O site
+    fica atrás de proteção anti-bot (Cloudflare) que pode bloquear a
+    requisição do servidor de forma intermitente; quando isso acontece, a
+    fonte aparece com erro na busca em vez de trazer resultados — best-effort,
+    sem garantia de disponibilidade.
 - **Fontes personalizadas, sem código:** além das duas fontes acima, dá pra
   cadastrar qualquer outro site de leilão direto pela interface (nome + URL de
   busca + seletores CSS) — sem mexer no servidor. Veja "Adicionar uma fonte
@@ -37,6 +42,7 @@ server/
   src/index.js                       Rotas Express, agrega os scrapers
   src/scrapers/leiloesbr.js          Scraper do LeilõesBR (cheerio)
   src/scrapers/receitaFederal.js     Cliente da API do Leilão Eletrônico da Receita Federal
+  src/scrapers/olx.js                Scraper do OLX (cheerio, best-effort — ver limitações)
   src/scrapers/generic.js            Scraper genérico (seletores vêm da requisição, sem deploy)
 ```
 
@@ -139,6 +145,12 @@ Limitações desse modo genérico (automático ou avançado):
 - Outros leiloeiros/agregadores (Superbid, Sodré Santoro etc.) podem ter
   proteção anti-bot ou estrutura diferente — cada um precisaria do próprio
   scraper em `server/src/scrapers/`.
+- **Mercado Livre e Craigslist não foram integrados:** a API pública de busca
+  do Mercado Livre agora exige autenticação OAuth (não dá pra fazer scraping
+  nem chamar a API sem registrar um app em developers.mercadolivre.com.br);
+  o Craigslist não tem cobertura real no Brasil (não existe site local de
+  São Paulo/outras cidades), então não haveria resultado relevante pra esse
+  caso de uso.
 - Sem banco de dados: se limpar o localStorage do navegador, o histórico de
   "anúncios já vistos" e a lista de palavras-chave se perdem.
 - Sem notificações (e-mail/Telegram) ainda — hoje é preciso abrir a página
