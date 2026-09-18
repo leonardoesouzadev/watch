@@ -5,7 +5,8 @@ import { SOURCE_LABEL } from '../sourceLabels'
 import { isLikelyWatch } from '../watchFilter'
 import { normalize } from '../normalize'
 import { Toggle } from './Toggle'
-import { SearchIcon, ChevronDownIcon } from './icons'
+import { SearchIcon, CheckIcon } from './icons'
+import { Combobox } from './Combobox'
 
 interface Props {
   keyword: string | null
@@ -15,6 +16,17 @@ interface Props {
 const PAGE_SIZE = 12
 
 type SortOrder = 'none' | 'price-asc' | 'price-desc'
+
+const SORT_OPTIONS: Record<SortOrder, string> = {
+  none: 'Relevância',
+  'price-asc': 'Menor preço',
+  'price-desc': 'Maior preço',
+}
+const SORT_LABEL_TO_ORDER: Record<string, SortOrder> = {
+  Relevância: 'none',
+  'Menor preço': 'price-asc',
+  'Maior preço': 'price-desc',
+}
 
 const fieldClass =
   'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500/25'
@@ -109,20 +121,6 @@ export function ResultsPanel({ keyword, state }: Props) {
             {keyword}
             {state?.loading && <span className="text-xs font-medium text-slate-400">Buscando…</span>}
           </h2>
-          {state?.data && (
-            <div className="mt-1.5 flex flex-wrap items-center gap-2">
-              {Object.entries(state.data.sources).map(([name, s]) => (
-                <span
-                  key={name}
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    s?.error ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'
-                  }`}
-                >
-                  {SOURCE_LABEL[name] ?? name}: {s?.error ? 'erro' : `${s?.total ?? 0} anúncios`}
-                </span>
-              ))}
-            </div>
-          )}
           {state?.lastFetchedAt && (
             <p className="mt-1.5 text-xs text-slate-400">
               Atualizado às {new Date(state.lastFetchedAt).toLocaleTimeString()}
@@ -172,21 +170,15 @@ export function ResultsPanel({ keyword, state }: Props) {
                 className={`${fieldClass} w-28`}
               />
             </label>
-            <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
-              Ordenar por
-              <div className="relative">
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-                  className={`${fieldClass} appearance-none pr-8`}
-                >
-                  <option value="none">Relevância</option>
-                  <option value="price-asc">Menor preço</option>
-                  <option value="price-desc">Maior preço</option>
-                </select>
-                <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              </div>
-            </label>
+            <div className="w-40">
+              <label className="mb-1 block text-xs font-medium text-slate-500">Ordenar por</label>
+              <Combobox
+                options={Object.values(SORT_OPTIONS)}
+                value={SORT_OPTIONS[sortOrder]}
+                onSelect={(label) => setSortOrder(SORT_LABEL_TO_ORDER[label] ?? 'none')}
+                selectOnly
+              />
+            </div>
 
             {hasActiveFilters && (
               <button
@@ -211,12 +203,13 @@ export function ResultsPanel({ keyword, state }: Props) {
                     key={name}
                     type="button"
                     onClick={() => toggleSource(name)}
-                    className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    className={`flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
                       hiddenSources.has(name)
                         ? 'border-slate-200 bg-slate-50 text-slate-400'
                         : 'border-accent-600 bg-accent-50 text-accent-700'
                     }`}
                   >
+                    {!hiddenSources.has(name) && <CheckIcon className="h-3 w-3" />}
                     {SOURCE_LABEL[name] ?? name}
                   </button>
                 ))}

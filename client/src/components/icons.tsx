@@ -62,3 +62,23 @@ export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+export function CheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  )
+}
+
+export function GavelIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="14.5" y="3.5" width="6" height="3" rx="1" transform="rotate(45 17.5 5)" />
+      <path d="m16 6.5-7 7" />
+      <path d="m13 3.5 7 7" />
+      <path d="m3 21 6-6" />
+      <path d="M2 21h9" />
+    </svg>
+  )
+}
