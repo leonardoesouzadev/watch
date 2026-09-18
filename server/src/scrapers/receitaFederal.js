@@ -109,7 +109,7 @@ async function buildIndex() {
         title,
         price:
           ref.lote.valorMinimo != null
-            ? { value: String(ref.lote.valorMinimo / 100), currency: "BRL" }
+            ? { value: String(ref.lote.valorMinimo), currency: "BRL" }
             : null,
         image: null,
         condition: null,

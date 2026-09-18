@@ -10,13 +10,44 @@ interface Props {
 
 const PAGE_SIZE = 12
 
+type SortOrder = 'none' | 'price-asc' | 'price-desc'
+
 export function ResultsPanel({ keyword, state }: Props) {
-  const items = state?.data?.items ?? []
+  const allItems = state?.data?.items ?? []
   const [page, setPage] = useState(1)
+  const [sortOrder, setSortOrder] = useState<SortOrder>('none')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
 
   useEffect(() => {
     setPage(1)
   }, [keyword, state?.data])
+
+  useEffect(() => {
+    setPage(1)
+  }, [sortOrder, minPrice, maxPrice])
+
+  const min = minPrice.trim() === '' ? null : Number(minPrice)
+  const max = maxPrice.trim() === '' ? null : Number(maxPrice)
+
+  const items = allItems
+    .filter((item) => {
+      if (min === null && max === null) return true
+      const value = item.price ? Number(item.price.value) : NaN
+      if (Number.isNaN(value)) return false
+      if (min !== null && value < min) return false
+      if (max !== null && value > max) return false
+      return true
+    })
+    .sort((a, b) => {
+      if (sortOrder === 'none') return 0
+      const av = a.price ? Number(a.price.value) : NaN
+      const bv = b.price ? Number(b.price.value) : NaN
+      if (Number.isNaN(av) && Number.isNaN(bv)) return 0
+      if (Number.isNaN(av)) return 1
+      if (Number.isNaN(bv)) return -1
+      return sortOrder === 'price-asc' ? av - bv : bv - av
+    })
 
   if (!keyword) {
     return (
@@ -60,6 +91,59 @@ export function ResultsPanel({ keyword, state }: Props) {
         </div>
       </div>
 
+      {allItems.length > 0 && (
+        <div className="flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-3.5">
+          <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+            Preço mín. (R$)
+            <input
+              type="number"
+              min={0}
+              inputMode="decimal"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              placeholder="0"
+              className="w-28 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm text-slate-800 focus:border-accent-600 focus:outline-none"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+            Preço máx. (R$)
+            <input
+              type="number"
+              min={0}
+              inputMode="decimal"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              placeholder="Sem limite"
+              className="w-28 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm text-slate-800 focus:border-accent-600 focus:outline-none"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+            Ordenar por
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+              className="rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm text-slate-800 focus:border-accent-600 focus:outline-none"
+            >
+              <option value="none">Relevância</option>
+              <option value="price-asc">Menor preço</option>
+              <option value="price-desc">Maior preço</option>
+            </select>
+          </label>
+          {(minPrice || maxPrice) && (
+            <button
+              type="button"
+              onClick={() => {
+                setMinPrice('')
+                setMaxPrice('')
+              }}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-accent-600 hover:bg-accent-50"
+            >
+              Limpar faixa
+            </button>
+          )}
+        </div>
+      )}
+
       {state?.error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
           Erro: {state.error}
@@ -76,7 +160,9 @@ export function ResultsPanel({ keyword, state }: Props) {
 
       {!state?.loading && items.length === 0 && !state?.error && (
         <p className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
-          Nenhum anúncio encontrado para essa palavra-chave ainda.
+          {allItems.length > 0
+            ? 'Nenhum anúncio dentro da faixa de preço selecionada.'
+            : 'Nenhum anúncio encontrado para essa palavra-chave ainda.'}
         </p>
       )}
 
