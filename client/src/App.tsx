@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { KeywordManager } from './components/KeywordManager'
 import { ResultsPanel } from './components/ResultsPanel'
 import { SourceManager } from './components/SourceManager'
+import { SidebarSection } from './components/SidebarSection'
 import { Toggle } from './components/Toggle'
+import { WatchIcon, TagIcon, GlobeIcon, RefreshIcon } from './components/icons'
 import { searchKeyword } from './api'
 import {
   loadKeywords,
@@ -195,40 +197,48 @@ function App() {
   }, [autoRefresh, runSearch])
 
   return (
-    <div className="grid min-h-screen grid-cols-1 md:grid-cols-[280px_1fr]">
-      <aside className="flex flex-col gap-6 border-b border-slate-200 bg-white p-6 md:border-b-0 md:border-r">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-bold text-slate-900">
-            <span aria-hidden>⌚</span> Watch Tracker
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">Monitor de leilões de relógios no Brasil</p>
+    <div className="grid min-h-screen grid-cols-1 bg-slate-100 md:grid-cols-[300px_1fr]">
+      <aside className="flex flex-col border-b border-slate-200 bg-slate-50 md:border-b-0 md:border-r">
+        <div className="bg-linear-to-br from-accent-600 to-accent-700 px-6 py-6 text-white">
+          <div className="flex items-center gap-2.5">
+            <WatchIcon className="h-6 w-6" />
+            <h1 className="text-lg font-bold tracking-tight">Watch Tracker</h1>
+          </div>
+          <p className="mt-1 text-xs text-accent-100">Monitor de leilões de relógios no Brasil</p>
         </div>
 
-        <KeywordManager
-          keywords={keywords}
-          selected={selected}
-          onAdd={handleAdd}
-          onRemove={handleRemove}
-          onSelect={handleSelect}
-        />
+        <div className="flex flex-1 flex-col gap-5 p-5">
+          <SidebarSection title="Palavras-chave" icon={<TagIcon className="h-4 w-4" />}>
+            <KeywordManager
+              keywords={keywords}
+              selected={selected}
+              onAdd={handleAdd}
+              onRemove={handleRemove}
+              onSelect={handleSelect}
+            />
+          </SidebarSection>
 
-        <SourceManager
-          builtInSources={BUILT_IN_SOURCES}
-          disabledSources={disabledSources}
-          onToggleBuiltIn={handleToggleBuiltIn}
-          customSources={customSources}
-          onAddCustomSource={handleAddCustomSource}
-          onToggleCustomSource={handleToggleCustomSource}
-          onRemoveCustomSource={handleRemoveCustomSource}
-        />
+          <SidebarSection title="Fontes" icon={<GlobeIcon className="h-4 w-4" />}>
+            <SourceManager
+              builtInSources={BUILT_IN_SOURCES}
+              disabledSources={disabledSources}
+              onToggleBuiltIn={handleToggleBuiltIn}
+              customSources={customSources}
+              onAddCustomSource={handleAddCustomSource}
+              onToggleCustomSource={handleToggleCustomSource}
+              onRemoveCustomSource={handleRemoveCustomSource}
+            />
+          </SidebarSection>
 
-        <div className="mt-auto border-t border-slate-200 pt-4">
-          <Toggle
-            checked={autoRefresh}
-            onChange={() => setAutoRefresh((prev) => !prev)}
-            label={`Atualizar automaticamente a cada ${AUTO_REFRESH_MINUTES} min`}
-            labelClassName="text-xs leading-snug text-slate-500"
-          />
+          <div className="mt-auto flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <RefreshIcon className="h-4 w-4 shrink-0 text-accent-600" />
+            <Toggle
+              checked={autoRefresh}
+              onChange={() => setAutoRefresh((prev) => !prev)}
+              label={`Atualizar automaticamente a cada ${AUTO_REFRESH_MINUTES} min`}
+              labelClassName="text-xs leading-snug text-slate-600"
+            />
+          </div>
         </div>
       </aside>
 

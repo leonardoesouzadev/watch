@@ -84,9 +84,7 @@ export function SourceManager({
   }
 
   return (
-    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4">
-      <h2 className="text-xs font-bold uppercase tracking-wide text-slate-500">Fontes</h2>
-
+    <div className="flex flex-col gap-3">
       <ul className="flex flex-col gap-2">
         {builtInSources.map((s) => (
           <li key={s.id} className="flex items-center justify-between gap-2">

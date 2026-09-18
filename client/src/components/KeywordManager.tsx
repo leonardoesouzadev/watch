@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { WATCH_BRANDS } from '../watchFilter'
+import { Combobox } from './Combobox'
 
 interface Props {
   keywords: string[]
@@ -22,17 +23,8 @@ export function KeywordManager({ keywords, selected, onAdd, onRemove, onSelect }
     setDraft('')
   }
 
-  function handleBrandSelect(e: React.ChangeEvent<HTMLSelectElement>) {
-    const brand = e.target.value
-    if (!brand) return
-    onAdd(brand)
-    e.target.value = ''
-  }
-
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-xs font-bold uppercase tracking-wide text-slate-500">Palavras-chave</h2>
-
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           value={draft}
@@ -48,20 +40,7 @@ export function KeywordManager({ keywords, selected, onAdd, onRemove, onSelect }
         </button>
       </form>
 
-      <select
-        defaultValue=""
-        onChange={handleBrandSelect}
-        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500/25"
-      >
-        <option value="" disabled>
-          Ou selecione uma marca…
-        </option>
-        {SORTED_BRANDS.map((brand) => (
-          <option key={brand} value={brand}>
-            {brand}
-          </option>
-        ))}
-      </select>
+      <Combobox options={SORTED_BRANDS} placeholder="Ou busque uma marca…" onSelect={onAdd} />
 
       <ul className="flex flex-wrap gap-2">
         {keywords.length === 0 && <li className="text-sm text-slate-400">Nenhuma palavra-chave ainda</li>}
