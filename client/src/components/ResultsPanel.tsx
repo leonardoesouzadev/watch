@@ -13,7 +13,7 @@ interface Props {
   state: KeywordState | undefined
 }
 
-const PAGE_SIZE = 12
+const PAGE_SIZE = 20
 
 type SortOrder = 'none' | 'price-asc' | 'price-desc'
 
@@ -241,7 +241,7 @@ export function ResultsPanel({ keyword, state }: Props) {
         </p>
       )}
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {pageItems.map((item) => (
           <ListingCard key={item.id} listing={item} isNew={state?.newIds.has(item.id) ?? false} />
         ))}

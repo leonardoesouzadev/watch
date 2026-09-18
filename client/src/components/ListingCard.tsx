@@ -39,7 +39,7 @@ export function ListingCard({ listing, isNew }: Props) {
         {SOURCE_LABEL[listing.source] ?? listing.source}
       </span>
 
-      <div className="flex h-42.5 items-center justify-center bg-slate-100">
+      <div className="flex aspect-4/3 items-center justify-center bg-slate-100">
         {listing.image ? (
           <img src={listing.image} alt={listing.title} loading="lazy" className="h-full w-full object-cover" />
         ) : (
