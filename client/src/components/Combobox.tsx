@@ -1,31 +1,33 @@
 import { useMemo, useRef, useState } from 'react'
 import { SearchIcon } from './icons'
+import { normalize } from '../normalize'
 
 interface Props {
   options: string[]
   placeholder?: string
   onSelect: (value: string) => void
   maxResults?: number
+  /** Lets Enter (or a dedicated row) add whatever was typed, even if it matches no option. */
+  allowFreeText?: boolean
 }
 
-function normalize(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-}
-
-export function Combobox({ options, placeholder, onSelect, maxResults = 8 }: Props) {
+export function Combobox({ options, placeholder, onSelect, maxResults = 8, allowFreeText = false }: Props) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [highlighted, setHighlighted] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const trimmedQuery = query.trim()
+
   const filtered = useMemo(() => {
-    const q = normalize(query.trim())
+    const q = normalize(trimmedQuery)
     const matches = q ? options.filter((o) => normalize(o).includes(q)) : options
     return matches.slice(0, maxResults)
-  }, [options, query, maxResults])
+  }, [options, trimmedQuery, maxResults])
+
+  const showFreeText =
+    allowFreeText && trimmedQuery !== '' && !filtered.some((o) => normalize(o) === normalize(trimmedQuery))
+  const rowCount = filtered.length + (showFreeText ? 1 : 0)
 
   function select(value: string) {
     onSelect(value)
@@ -41,14 +43,17 @@ export function Combobox({ options, placeholder, onSelect, maxResults = 8 }: Pro
     }
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      setHighlighted((prev) => Math.min(prev + 1, filtered.length - 1))
+      if (rowCount > 0) setHighlighted((prev) => Math.min(prev + 1, rowCount - 1))
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
-      setHighlighted((prev) => Math.max(prev - 1, 0))
+      if (rowCount > 0) setHighlighted((prev) => Math.max(prev - 1, 0))
     } else if (e.key === 'Enter') {
       e.preventDefault()
-      const value = filtered[highlighted]
-      if (value) select(value)
+      if (highlighted < filtered.length && filtered[highlighted]) {
+        select(filtered[highlighted])
+      } else if (showFreeText) {
+        select(trimmedQuery)
+      }
     } else if (e.key === 'Escape') {
       setOpen(false)
       inputRef.current?.blur()
@@ -77,7 +82,9 @@ export function Combobox({ options, placeholder, onSelect, maxResults = 8 }: Pro
 
       {open && (
         <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-          {filtered.length === 0 && <li className="px-3 py-1.5 text-sm text-slate-400">Nenhuma marca encontrada</li>}
+          {filtered.length === 0 && !showFreeText && (
+            <li className="px-3 py-1.5 text-sm text-slate-400">Nenhuma marca encontrada</li>
+          )}
           {filtered.map((option, index) => (
             <li key={option}>
               <button
@@ -95,6 +102,23 @@ export function Combobox({ options, placeholder, onSelect, maxResults = 8 }: Pro
               </button>
             </li>
           ))}
+          {showFreeText && (
+            <li>
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  select(trimmedQuery)
+                }}
+                onMouseEnter={() => setHighlighted(filtered.length)}
+                className={`block w-full truncate px-3 py-1.5 text-left text-sm font-medium ${
+                  filtered.length === highlighted ? 'bg-accent-50 text-accent-700' : 'text-accent-600'
+                }`}
+              >
+                Adicionar “{trimmedQuery}”
+              </button>
+            </li>
+          )}
         </ul>
       )}
     </div>

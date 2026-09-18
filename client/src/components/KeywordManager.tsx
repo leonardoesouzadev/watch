@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { WATCH_BRANDS } from '../watchFilter'
 import { Combobox } from './Combobox'
 
@@ -13,34 +12,14 @@ interface Props {
 const SORTED_BRANDS = [...WATCH_BRANDS].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 
 export function KeywordManager({ keywords, selected, onAdd, onRemove, onSelect }: Props) {
-  const [draft, setDraft] = useState('')
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const trimmed = draft.trim()
-    if (!trimmed) return
-    onAdd(trimmed)
-    setDraft('')
-  }
-
   return (
     <div className="flex flex-col gap-3">
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="ex: Rolex Submariner"
-          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500/25"
-        />
-        <button
-          type="submit"
-          className="rounded-lg bg-accent-600 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
-        >
-          Adicionar
-        </button>
-      </form>
-
-      <Combobox options={SORTED_BRANDS} placeholder="Ou busque uma marca…" onSelect={onAdd} />
+      <Combobox
+        options={SORTED_BRANDS}
+        placeholder="Buscar marca ou digitar modelo…"
+        onSelect={onAdd}
+        allowFreeText
+      />
 
       <ul className="flex flex-wrap gap-2">
         {keywords.length === 0 && <li className="text-sm text-slate-400">Nenhuma palavra-chave ainda</li>}

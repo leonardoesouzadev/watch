@@ -3,7 +3,6 @@ import express from "express";
 import cors from "cors";
 import { searchLeiloesBR } from "./scrapers/leiloesbr.js";
 import { searchReceitaFederal } from "./scrapers/receitaFederal.js";
-import { searchOlx } from "./scrapers/olx.js";
 import { searchGeneric } from "./scrapers/generic.js";
 
 const app = express();
@@ -22,7 +21,6 @@ app.get("/api/health", (_req, res) => {
 const SOURCES = {
   leiloesbr: searchLeiloesBR,
   receitafederal: searchReceitaFederal,
-  olx: searchOlx,
 };
 
 app.post("/api/search", async (req, res) => {

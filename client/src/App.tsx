@@ -4,7 +4,7 @@ import { ResultsPanel } from './components/ResultsPanel'
 import { SourceManager } from './components/SourceManager'
 import { SidebarSection } from './components/SidebarSection'
 import { Toggle } from './components/Toggle'
-import { WatchIcon, TagIcon, GlobeIcon, RefreshIcon } from './components/icons'
+import { WatchIcon, SearchIcon, GlobeIcon, RefreshIcon } from './components/icons'
 import { searchKeyword } from './api'
 import {
   loadKeywords,
@@ -208,7 +208,7 @@ function App() {
         </div>
 
         <div className="flex flex-1 flex-col gap-5 p-5">
-          <SidebarSection title="Palavras-chave" icon={<TagIcon className="h-4 w-4" />}>
+          <SidebarSection title="Buscar" icon={<SearchIcon className="h-4 w-4" />}>
             <KeywordManager
               keywords={keywords}
               selected={selected}

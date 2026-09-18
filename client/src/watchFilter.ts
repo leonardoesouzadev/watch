@@ -1,3 +1,5 @@
+import { normalize } from './normalize'
+
 // Generic terms that identify an item as a watch regardless of brand.
 const GENERIC_TERMS = ['relogio', 'relógio', 'watch', 'wristwatch', 'cronografo', 'cronógrafo']
 
@@ -78,13 +80,6 @@ export const WATCH_BRANDS = [
 // Alternate spellings that won't be caught by normalizing WATCH_BRANDS
 // (different words, not just accents/punctuation).
 const BRAND_ALIASES = ['jaeger lecoultre', 'baume et mercier', 'lange e sohne', 'lange & sohne']
-
-function normalize(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-}
 
 const NORMALIZED_TERMS = [...GENERIC_TERMS, ...WATCH_BRANDS, ...BRAND_ALIASES].map(normalize)
 
