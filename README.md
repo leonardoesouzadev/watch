@@ -21,6 +21,19 @@ novos desde a última busca.
     tem seu próprio catálogo com um filtro por palavra-chave. O servidor
     descobre o(s) leilão(ões) abertos na página de agenda e busca o termo no
     catálogo de cada um.
+  - [Sotheby's](https://www.sothebys.com/en/) — os dados vêm de um índice
+    Algolia embutido no HTML da página de busca (`__NEXT_DATA__`), já com
+    preço, estimativa, imagem e local do leilão. A busca já filtra só leilões
+    futuros (`pfilters.dateRange=upcoming`). O site responde com uma cadeia de
+    redirects 307 que setam um cookie esperado no próximo passo; o servidor
+    segue esses redirects manualmente carregando o cookie adiante.
+  - [Gondolo Leilões](https://www.gondololeiloes.com.br/) — roda na mesma
+    plataforma de leiloeiro (ASP) usada pelo LeilõesBR, só que num domínio
+    próprio (`gondololeiloes.lel.br`) e com busca restrita aos leilões ativos
+    no momento.
+  - [101 Leilões](https://101leiloes.com.br/) — agregador de leiloeiros
+    homologados na Jucesp. Relógios entram na categoria "Diversos"
+    (`/leiloes/diversos?q=...`), que é a única categoria pesquisada.
 - **Filtro de fontes:** cada fonte tem um interruptor na barra lateral pra
   incluir/excluir da busca.
 - **Sem banco de dados:** palavras-chave e histórico de anúncios já vistos
@@ -37,6 +50,9 @@ server/
   src/scrapers/leiloesbr.js          Scraper do LeilõesBR (cheerio)
   src/scrapers/receitaFederal.js     Cliente da API do Leilão Eletrônico da Receita Federal
   src/scrapers/miltonsayegh.js       Scraper do Milton Sayegh Leilões (cheerio)
+  src/scrapers/sothebys.js           Cliente do índice Algolia embutido na busca da Sotheby's
+  src/scrapers/gondolo.js            Scraper do Gondolo Leilões (cheerio)
+  src/scrapers/leiloes101.js         Scraper do 101 Leilões (cheerio)
 ```
 
 ## 1. Configurar o servidor
@@ -104,9 +120,19 @@ npm run dev
   com catálogo aberto no momento (o site não tem busca única em todo o
   histórico); se não houver nenhum leilão em andamento, essa fonte não
   retorna nada.
-- Outros leiloeiros/agregadores (Superbid, Sodré Santoro etc.) podem ter
-  proteção anti-bot ou estrutura diferente — cada um precisaria do próprio
-  scraper em `server/src/scrapers/`.
+- A busca no Gondolo Leilões também só encontra lotes de leilões ativos no
+  momento. Além disso, o preço/lance não fica visível pra quem não está
+  logado na página de busca — a fonte retorna o anúncio sem preço nesse caso
+  (dá pra ver o valor clicando no card, que abre o lote no site original).
+- A busca no 101 Leilões olha só a categoria "Diversos"; se um relógio for
+  catalogado em outra categoria do site (ex: dentro de um leilão de veículos
+  encalhados) ele não aparece.
+- **Superbid não foi integrado:** o site fica atrás de um desafio JS do
+  Cloudflare ("Just a moment...") em todas as páginas, igual ao que já tinha
+  bloqueado o OLX — não dá pra contornar com scraping simples de HTML.
+- Outros leiloeiros/agregadores (Sodré Santoro etc.) podem ter proteção
+  anti-bot ou estrutura diferente — cada um precisaria do próprio scraper em
+  `server/src/scrapers/`.
 - **Mercado Livre, OLX e Craigslist não foram integrados:** a API pública de
   busca do Mercado Livre agora exige autenticação OAuth (não dá pra fazer
   scraping nem chamar a API sem registrar um app em

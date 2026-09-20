@@ -4,6 +4,9 @@ import cors from "cors";
 import { searchLeiloesBR } from "./scrapers/leiloesbr.js";
 import { searchReceitaFederal } from "./scrapers/receitaFederal.js";
 import { searchMiltonSayegh } from "./scrapers/miltonsayegh.js";
+import { searchSothebys } from "./scrapers/sothebys.js";
+import { searchGondolo } from "./scrapers/gondolo.js";
+import { searchLeiloes101 } from "./scrapers/leiloes101.js";
 
 const app = express();
 
@@ -20,6 +23,9 @@ const SOURCES = {
   leiloesbr: searchLeiloesBR,
   receitafederal: searchReceitaFederal,
   miltonsayegh: searchMiltonSayegh,
+  sothebys: searchSothebys,
+  gondolo: searchGondolo,
+  leiloes101: searchLeiloes101,
 };
 
 app.post("/api/search", async (req, res) => {
