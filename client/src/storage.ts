@@ -1,9 +1,6 @@
-import type { CustomSource } from './types'
-
 const KEYWORDS_KEY = 'watch-tracker:keywords'
 const SEEN_PREFIX = 'watch-tracker:seen:'
 const DISABLED_SOURCES_KEY = 'watch-tracker:disabledSources'
-const CUSTOM_SOURCES_KEY = 'watch-tracker:customSources'
 
 export function loadKeywords(): string[] {
   try {
@@ -48,17 +45,4 @@ export function loadDisabledSources(): Set<string> {
 
 export function saveDisabledSources(ids: Set<string>): void {
   localStorage.setItem(DISABLED_SOURCES_KEY, JSON.stringify(Array.from(ids)))
-}
-
-export function loadCustomSources(): CustomSource[] {
-  try {
-    const raw = localStorage.getItem(CUSTOM_SOURCES_KEY)
-    return raw ? (JSON.parse(raw) as CustomSource[]) : []
-  } catch {
-    return []
-  }
-}
-
-export function saveCustomSources(sources: CustomSource[]): void {
-  localStorage.setItem(CUSTOM_SOURCES_KEY, JSON.stringify(sources))
 }

@@ -1,18 +1,17 @@
-import type { CustomSource, SearchResult } from './types'
+import type { SearchResult } from './types'
 
 interface SearchOptions {
   limit?: number
   sources?: string[]
-  customSources?: CustomSource[]
 }
 
 export async function searchKeyword(query: string, options: SearchOptions = {}): Promise<SearchResult> {
-  const { limit = 30, sources, customSources } = options
+  const { limit = 30, sources } = options
 
   const res = await fetch('/api/search', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ q: query, limit, sources, customSources }),
+    body: JSON.stringify({ q: query, limit, sources }),
   })
 
   if (!res.ok) {

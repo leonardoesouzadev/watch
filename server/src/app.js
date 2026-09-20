@@ -3,10 +3,9 @@ import express from "express";
 import cors from "cors";
 import { searchLeiloesBR } from "./scrapers/leiloesbr.js";
 import { searchReceitaFederal } from "./scrapers/receitaFederal.js";
-import { searchGeneric } from "./scrapers/generic.js";
+import { searchMiltonSayegh } from "./scrapers/miltonsayegh.js";
 
 const app = express();
-const MAX_CUSTOM_SOURCES = 10;
 
 app.use(cors());
 app.use(express.json());
@@ -16,11 +15,11 @@ app.get("/api/health", (_req, res) => {
 });
 
 // Each entry is a scraper for one built-in auction site. Add more here as
-// they're built. Ad-hoc sources (user-defined CSS selectors) travel with the
-// request instead — see customSources below.
+// they're built.
 const SOURCES = {
   leiloesbr: searchLeiloesBR,
   receitafederal: searchReceitaFederal,
+  miltonsayegh: searchMiltonSayegh,
 };
 
 app.post("/api/search", async (req, res) => {
@@ -31,7 +30,6 @@ app.post("/api/search", async (req, res) => {
 
   const limit = Number(req.body?.limit) || 30;
   const requestedSources = Array.isArray(req.body?.sources) ? req.body.sources : Object.keys(SOURCES);
-  const customSources = Array.isArray(req.body?.customSources) ? req.body.customSources.slice(0, MAX_CUSTOM_SOURCES) : [];
 
   const builtInTasks = requestedSources
     .filter((name) => SOURCES[name])
@@ -41,15 +39,7 @@ app.post("/api/search", async (req, res) => {
         .catch((err) => [name, err])
     );
 
-  const customTasks = customSources
-    .filter((c) => c && c.id && c.enabled !== false)
-    .map((c) =>
-      searchGeneric(c, { query, limit })
-        .then((r) => [c.id, r])
-        .catch((err) => [c.id, err])
-    );
-
-  const settled = await Promise.all([...builtInTasks, ...customTasks]);
+  const settled = await Promise.all(builtInTasks);
 
   const sources = {};
   const items = [];

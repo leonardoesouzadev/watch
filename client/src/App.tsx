@@ -14,11 +14,9 @@ import {
   clearSeenIds,
   loadDisabledSources,
   saveDisabledSources,
-  loadCustomSources,
-  saveCustomSources,
 } from './storage'
 import { BUILT_IN_SOURCES } from './sourceLabels'
-import type { CustomSource, KeywordState } from './types'
+import type { KeywordState } from './types'
 
 const AUTO_REFRESH_MINUTES = 10
 
@@ -51,14 +49,11 @@ function App() {
   const [results, setResults] = useState<Record<string, KeywordState>>({})
   const [autoRefresh, setAutoRefresh] = useState(false)
   const [disabledSources, setDisabledSources] = useState<Set<string>>(() => loadDisabledSources())
-  const [customSources, setCustomSources] = useState<CustomSource[]>(() => loadCustomSources())
 
   const keywordsRef = useRef(keywords)
   keywordsRef.current = keywords
   const disabledSourcesRef = useRef(disabledSources)
   disabledSourcesRef.current = disabledSources
-  const customSourcesRef = useRef(customSources)
-  customSourcesRef.current = customSources
 
   const runSearch = useCallback(async (keyword: string) => {
     setResults((prev) => ({
@@ -74,8 +69,7 @@ function App() {
 
     try {
       const enabledBuiltIn = BUILT_IN_SOURCES.filter((s) => !disabledSourcesRef.current.has(s.id)).map((s) => s.id)
-      const enabledCustom = customSourcesRef.current.filter((s) => s.enabled)
-      const data = await searchKeyword(keyword, { sources: enabledBuiltIn, customSources: enabledCustom })
+      const data = await searchKeyword(keyword, { sources: enabledBuiltIn })
 
       const seen = loadSeenIds(keyword)
       const isFirstFetch = seen.size === 0
@@ -155,39 +149,6 @@ function App() {
     }
   }
 
-  function handleAddCustomSource(source: CustomSource) {
-    setCustomSources((prev) => {
-      const next = [...prev, source]
-      saveCustomSources(next)
-      return next
-    })
-    refreshSelected()
-  }
-
-  function handleToggleCustomSource(id: string) {
-    const source = customSources.find((s) => s.id === id)
-    const turningOff = source?.enabled ?? false
-    setCustomSources((prev) => {
-      const next = prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s))
-      saveCustomSources(next)
-      return next
-    })
-    if (turningOff) {
-      setResults((prev) => stripSourceFromResults(prev, id))
-    } else {
-      refreshSelected()
-    }
-  }
-
-  function handleRemoveCustomSource(id: string) {
-    setCustomSources((prev) => {
-      const next = prev.filter((s) => s.id !== id)
-      saveCustomSources(next)
-      return next
-    })
-    setResults((prev) => stripSourceFromResults(prev, id))
-  }
-
   useEffect(() => {
     if (!autoRefresh) return
     const id = setInterval(() => {
@@ -223,10 +184,6 @@ function App() {
               builtInSources={BUILT_IN_SOURCES}
               disabledSources={disabledSources}
               onToggleBuiltIn={handleToggleBuiltIn}
-              customSources={customSources}
-              onAddCustomSource={handleAddCustomSource}
-              onToggleCustomSource={handleToggleCustomSource}
-              onRemoveCustomSource={handleRemoveCustomSource}
             />
           </SidebarSection>
 

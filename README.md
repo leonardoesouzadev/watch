@@ -16,18 +16,17 @@ novos desde a última busca.
     "RELÓGIO/PARTE" (evita varrer milhares de lotes de outras categorias) e
     busca a descrição detalhada só desses. Resultado fica em cache 30 min no
     servidor, já que montar o índice varre vários endpoints.
-- **Fontes personalizadas, sem código:** além das duas fontes acima, dá pra
-  cadastrar qualquer outro site de leilão direto pela interface (nome + URL de
-  busca + seletores CSS) — sem mexer no servidor. Veja "Adicionar uma fonte
-  personalizada" abaixo.
-- **Filtro de fontes:** cada fonte (fixa ou personalizada) tem um interruptor
-  na barra lateral pra incluir/excluir da busca.
-- **Sem banco de dados:** palavras-chave, fontes personalizadas e histórico de
-  anúncios já vistos ficam salvos no `localStorage` do navegador.
-- **Backend mínimo:** Node/Express. Fontes fixas viram um arquivo em
-  `server/src/scrapers/`; fontes personalizadas usam um scraper genérico
-  (`generic.js`) que recebe os seletores a cada busca — não precisa de deploy
-  nem reinício do servidor pra adicionar uma.
+  - [Milton Sayegh Leilões](https://www.miltonsayeghleiloes.com.br/) — leiloeiro
+    de joias e relógios. O site não tem busca única: cada leilão em andamento
+    tem seu próprio catálogo com um filtro por palavra-chave. O servidor
+    descobre o(s) leilão(ões) abertos na página de agenda e busca o termo no
+    catálogo de cada um.
+- **Filtro de fontes:** cada fonte tem um interruptor na barra lateral pra
+  incluir/excluir da busca.
+- **Sem banco de dados:** palavras-chave e histórico de anúncios já vistos
+  ficam salvos no `localStorage` do navegador.
+- **Backend mínimo:** Node/Express. Cada fonte é um arquivo em
+  `server/src/scrapers/`.
 
 ## Estrutura
 
@@ -37,7 +36,7 @@ server/
   src/index.js                       Rotas Express, agrega os scrapers
   src/scrapers/leiloesbr.js          Scraper do LeilõesBR (cheerio)
   src/scrapers/receitaFederal.js     Cliente da API do Leilão Eletrônico da Receita Federal
-  src/scrapers/generic.js            Scraper genérico (seletores vêm da requisição, sem deploy)
+  src/scrapers/miltonsayegh.js       Scraper do Milton Sayegh Leilões (cheerio)
 ```
 
 ## 1. Configurar o servidor
@@ -77,8 +76,8 @@ npm run dev
 
 1. Digite uma palavra-chave (ex: "Rolex", "Citizen", "Mondaine") e clique em
    **Adicionar**.
-2. A busca roda nas duas fontes e mostra os lotes encontrados: título, lance
-   mínimo/preço, data/UF ou prazo de propostas, e o leiloeiro/órgão
+2. A busca roda nas fontes habilitadas e mostra os lotes encontrados: título,
+   lance mínimo/preço, data/UF ou prazo de propostas, e o leiloeiro/órgão
    responsável. Cada fonte aparece com seu total (ou erro) no topo.
 3. Clicar numa palavra-chave já cadastrada busca de novo na hora — não tem
    botão de atualizar separado.
@@ -88,41 +87,6 @@ npm run dev
 6. Clicar num card leva para a página do lote/edital na fonte original.
 7. Na seção **Fontes**, desligue o interruptor de qualquer fonte pra excluí-la
    das buscas (e do que aparece na tela) sem precisar removê-la.
-
-## Adicionar uma fonte personalizada (sem código)
-
-Na seção **Fontes** da barra lateral, clique em **+ Nova fonte personalizada**
-e preencha só duas coisas:
-
-- **Nome**: como ela vai aparecer nos resultados (ex: "Sodré Santoro").
-- **URL de busca**: a URL da página de resultados do site, com `{q}` no lugar
-  da palavra-chave (ex: `https://site.com.br/busca?termo={q}`).
-
-Isso já é suficiente — o servidor tenta identificar os anúncios sozinho,
-procurando na página elementos com "cara de preço" (R$, $, etc.) e usando o
-card ao redor de cada um como um anúncio. Funciona bem pra título, preço e
-link; imagem nem sempre é capturada automaticamente, dependendo de como o
-site organiza o HTML.
-
-Se a detecção automática não funcionar bem num site específico, tem um
-**Modo avançado** (link abaixo dos dois campos) com seletores CSS manuais:
-seletor do item/card, e opcionalmente título, preço, imagem e link — todos
-*relativos ao item*. Pra descobrir os seletores: abra a busca do site no
-navegador, clique com o botão direito num anúncio → **Inspecionar**, e veja
-as classes CSS usadas.
-
-Em nenhum dos dois modos precisa escrever código ou reiniciar o servidor — a
-fonte já funciona na próxima busca.
-
-Limitações desse modo genérico (automático ou avançado):
-
-- Só funciona em páginas renderizadas no servidor (HTML já vem pronto na
-  resposta). Sites que carregam os resultados via JavaScript depois da
-  página carregar (SPA) não funcionam — o servidor só vê o HTML inicial.
-- Sites com proteção anti-bot (Cloudflare etc.) provavelmente bloqueiam a
-  requisição do servidor.
-- O preço só é reconhecido se tiver um símbolo de moeda reconhecido (R$, $,
-  US$, €, £) junto do número.
 
 ## Limitações do MVP / próximos passos
 
@@ -136,6 +100,10 @@ Limitações desse modo genérico (automático ou avançado):
 - A primeira busca na Receita Federal depois do servidor subir (ou depois de
   30 min) demora um pouco mais, porque o servidor precisa montar o índice
   varrendo os editais abertos antes de filtrar pela palavra-chave.
+- A busca no Milton Sayegh Leilões só encontra lotes nos leilões que estão
+  com catálogo aberto no momento (o site não tem busca única em todo o
+  histórico); se não houver nenhum leilão em andamento, essa fonte não
+  retorna nada.
 - Outros leiloeiros/agregadores (Superbid, Sodré Santoro etc.) podem ter
   proteção anti-bot ou estrutura diferente — cada um precisaria do próprio
   scraper em `server/src/scrapers/`.

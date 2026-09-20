@@ -31,18 +31,3 @@ export interface KeywordState {
   newIds: Set<string>
   lastFetchedAt: number | null
 }
-
-export interface CustomSource {
-  id: string
-  name: string
-  /** Search results page URL with "{q}" where the keyword should go. */
-  searchUrl: string
-  /** CSS selector for each listing card/row on the results page. */
-  itemSelector: string
-  /** CSS selector (relative to the item) for the title. Empty = use the item's own text. */
-  titleSelector: string
-  priceSelector: string
-  imageSelector: string
-  linkSelector: string
-  enabled: boolean
-}
