@@ -114,6 +114,17 @@ npm run dev
 - **Superbid não foi integrado:** o site fica atrás de um desafio JS do
   Cloudflare ("Just a moment...") em todas as páginas, igual ao que já tinha
   bloqueado o OLX — não dá pra contornar com scraping simples de HTML.
+- **Phillips e Christie's também não foram integrados:** os dois usam
+  formatos de dados incorporados no HTML que não são JSON simples (diferente
+  da Sotheby's). O Phillips (`phillips.com/watches`) usa o formato
+  "turbo-stream" do React Router/Remix — a busca em si é só client-side (a
+  URL com `?q=` não filtra nada no servidor) e o payload embutido é uma árvore
+  de referências que não decodifica direto pra um objeto usável. O Christie's
+  tem duas partes distintas: a página do departamento
+  (`christies.com/en/departments/...`) usa Next.js com JSON simples mas não
+  tem lotes, só editorial; a busca de fato (`christies.com/en/results?query=`)
+  é outro app Next.js que usa o formato de streaming RSC (também não é JSON
+  simples) e ainda carrega um script de desafio do AWS WAF na página.
 - Outros leiloeiros/agregadores (Sodré Santoro etc.) podem ter proteção
   anti-bot ou estrutura diferente — cada um precisaria do próprio scraper em
   `server/src/scrapers/`.
