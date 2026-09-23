@@ -158,17 +158,21 @@ function App() {
   }, [autoRefresh, runSearch])
 
   return (
-    <div className="grid min-h-screen grid-cols-1 bg-slate-100 md:grid-cols-[300px_1fr]">
-      <aside className="flex flex-col border-b border-slate-200 bg-slate-50 md:border-b-0 md:border-r">
-        <div className="bg-linear-to-br from-accent-600 to-accent-700 px-6 py-6 text-white">
-          <div className="flex items-center gap-2.5">
-            <WatchIcon className="h-6 w-6" />
-            <h1 className="text-lg font-bold tracking-tight">Watch Tracker</h1>
+    <div className="grid min-h-screen grid-cols-1 bg-background md:grid-cols-[300px_1fr] lg:grid-cols-[320px_1fr]">
+      <aside className="flex flex-col bg-ink text-sidebar-fg md:sticky md:top-0 md:h-screen md:overflow-y-auto">
+        <div className="px-6 pb-6 pt-7">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-gold/30 bg-gold/10 text-gold">
+              <WatchIcon className="h-5 w-5" />
+            </span>
+            <div>
+              <h1 className="text-[15px] font-semibold tracking-tight text-white">Watch Tracker</h1>
+              <p className="mt-0.5 text-xs text-sidebar-muted">Monitor de leilões de relógios no Brasil</p>
+            </div>
           </div>
-          <p className="mt-1 text-xs text-accent-100">Monitor de leilões de relógios no Brasil</p>
         </div>
 
-        <div className="flex flex-1 flex-col gap-5 p-5">
+        <div className="flex flex-1 flex-col gap-6 px-6 pb-6">
           <SidebarSection title="Buscar" icon={<SearchIcon className="h-4 w-4" />}>
             <KeywordManager
               keywords={keywords}
@@ -187,19 +191,20 @@ function App() {
             />
           </SidebarSection>
 
-          <div className="mt-auto flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <RefreshIcon className="h-4 w-4 shrink-0 text-accent-600" />
+          <div className="mt-auto flex items-center gap-3 rounded-xl border border-white/8 bg-white/3 p-4">
+            <RefreshIcon className={`h-4 w-4 shrink-0 ${autoRefresh ? 'text-gold' : 'text-sidebar-muted'}`} />
             <Toggle
               checked={autoRefresh}
               onChange={() => setAutoRefresh((prev) => !prev)}
               label={`Atualizar automaticamente a cada ${AUTO_REFRESH_MINUTES} min`}
-              labelClassName="text-xs leading-snug text-slate-600"
+              labelClassName="text-xs leading-snug text-sidebar-muted"
+              tone="dark"
             />
           </div>
         </div>
       </aside>
 
-      <main className="min-w-0 p-6 md:p-10">
+      <main className="min-w-0 px-4 py-8 sm:px-8 md:px-10 md:py-10 xl:px-14 xl:py-12">
         <ResultsPanel keyword={selected} state={selected ? results[selected] : undefined} />
       </main>
     </div>

@@ -9,9 +9,9 @@ interface Props {
 
 export function SidebarSection({ title, icon, children, className }: Props) {
   return (
-    <section className={`rounded-xl border border-slate-200 bg-white p-4 shadow-sm ${className ?? ''}`}>
-      <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-        <span className="text-accent-600">{icon}</span>
+    <section className={`border-t border-white/6 pt-6 ${className ?? ''}`}>
+      <h2 className="eyebrow mb-4 flex items-center gap-2 text-sidebar-muted">
+        <span className="text-gold">{icon}</span>
         {title}
       </h2>
       {children}

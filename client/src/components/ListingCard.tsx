@@ -26,35 +26,45 @@ export function ListingCard({ listing, isNew }: Props) {
       href={listing.itemUrl}
       target="_blank"
       rel="noreferrer"
-      className="relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+      className="group card relative flex flex-col p-2.5 transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-px hover:border-border-strong hover:shadow-soft-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-gold/25"
     >
-      <div className="absolute left-2 top-2 z-10 flex gap-1.5">
+      <div className="relative flex h-56 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
+        {listing.image ? (
+          <img
+            src={listing.image}
+            alt={listing.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+          />
+        ) : (
+          <span className="text-xs text-fg-muted">Sem imagem</span>
+        )}
+
         {isNew && (
-          <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[11px] font-bold tracking-wide text-white shadow-sm">
+          <span className="eyebrow absolute left-2.5 top-2.5 rounded-full bg-ink px-2 py-0.5 text-[10px] text-gold-light">
             Novo
           </span>
         )}
+        <span className="absolute right-2.5 top-2.5 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-fg-secondary shadow-soft-sm backdrop-blur-sm">
+          {SOURCE_LABEL[listing.source] ?? listing.source}
+        </span>
       </div>
-      <span className="absolute right-2 top-2 z-10 rounded-full bg-slate-900/70 px-2 py-0.5 text-[11px] font-semibold tracking-wide text-white shadow-sm backdrop-blur-sm">
-        {SOURCE_LABEL[listing.source] ?? listing.source}
-      </span>
 
-      <div className="flex h-56 shrink-0 items-center justify-center bg-slate-100">
-        {listing.image ? (
-          <img src={listing.image} alt={listing.title} loading="lazy" className="h-full w-full object-cover" />
-        ) : (
-          <span className="text-xs text-slate-400">Sem imagem</span>
-        )}
-      </div>
-      <div className="flex flex-col gap-1.5 border-t border-slate-200 p-3.5">
-        <p className="line-clamp-2 text-sm font-medium leading-snug text-slate-800">{listing.title}</p>
-        <p className="text-xl font-bold text-accent-700">{price}</p>
-        {listing.location && <p className="text-xs text-slate-500">{listing.location}</p>}
-        {listing.seller && (
-          <p className="mt-0.5 inline-flex w-fit items-center gap-1 rounded-full bg-accent-50 px-2 py-0.5 text-xs font-semibold text-accent-700">
-            <GavelIcon className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{listing.seller}</span>
-          </p>
+      <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1.5 pt-4">
+        <p className="line-clamp-2 text-sm font-medium leading-snug text-fg">{listing.title}</p>
+        <p className={`tabular-nums tracking-tight ${listing.price ? 'text-xl font-semibold text-fg' : 'text-sm text-fg-muted'}`}>
+          {price}
+        </p>
+        {(listing.location || listing.seller) && (
+          <div className="mt-auto flex flex-col gap-2 pt-1">
+            {listing.location && <p className="text-xs text-fg-meta">{listing.location}</p>}
+            {listing.seller && (
+              <p className="badge badge-gold w-fit max-w-full">
+                <GavelIcon className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{listing.seller}</span>
+              </p>
+            )}
+          </div>
         )}
       </div>
     </a>

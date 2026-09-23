@@ -14,6 +14,32 @@ interface Props {
   /** Currently selected value, shown on the trigger in selectOnly mode. */
   value?: string
   className?: string
+  /** Surface the combobox sits on — `dark` for the sidebar. */
+  tone?: 'light' | 'dark'
+}
+
+const TONES = {
+  light: {
+    field: 'field',
+    icon: 'text-icon',
+    list: 'border-border bg-surface shadow-soft-lg',
+    empty: 'text-fg-muted',
+    option: 'text-fg-secondary',
+    optionActive: 'bg-surface-muted text-fg',
+    freeText: 'text-gold-deep',
+    freeTextActive: 'bg-gold-tint text-gold-text',
+  },
+  dark: {
+    field:
+      'rounded-[10px] border border-white/10 bg-ink-soft px-3 py-2 text-sm text-sidebar-fg transition-[border-color,box-shadow] duration-150 placeholder:text-sidebar-faint focus:border-gold focus:outline-none focus:ring-3 focus:ring-gold/15',
+    icon: 'text-sidebar-faint',
+    list: 'border-white/10 bg-ink-muted shadow-soft-lg',
+    empty: 'text-sidebar-muted',
+    option: 'text-white/75',
+    optionActive: 'bg-white/6 text-white',
+    freeText: 'text-gold-light',
+    freeTextActive: 'bg-gold/10 text-gold-light',
+  },
 }
 
 export function Combobox({
@@ -25,7 +51,9 @@ export function Combobox({
   selectOnly = false,
   value,
   className,
+  tone = 'light',
 }: Props) {
+  const t = TONES[tone]
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [highlighted, setHighlighted] = useState(0)
@@ -97,13 +125,13 @@ export function Combobox({
             onClick={() => (open ? setOpen(false) : openList())}
             onBlur={() => setOpen(false)}
             onKeyDown={handleKeyDown}
-            className="w-full truncate rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-left text-sm text-slate-800 focus:border-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500/25"
+            className={`${t.field} w-full truncate pr-8 text-left`}
           >
             {value || placeholder}
           </button>
         ) : (
           <>
-            <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <SearchIcon className={`pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 ${t.icon}`} />
             <input
               ref={inputRef}
               value={query}
@@ -116,19 +144,19 @@ export function Combobox({
               onBlur={() => setOpen(false)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-8 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500/25"
+              className={`${t.field} w-full py-2.5 pl-9`}
             />
           </>
         )}
         {selectOnly && (
-          <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <ChevronDownIcon className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 ${t.icon}`} />
         )}
       </div>
 
       {open && (
-        <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+        <ul className={`absolute z-20 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border p-1 ${t.list}`}>
           {filtered.length === 0 && !showFreeText && (
-            <li className="px-3 py-1.5 text-sm text-slate-400">Nenhuma marca encontrada</li>
+            <li className={`px-3 py-2 text-sm ${t.empty}`}>Nenhuma marca encontrada</li>
           )}
           {filtered.map((option, index) => (
             <li key={option}>
@@ -139,13 +167,13 @@ export function Combobox({
                   select(option)
                 }}
                 onMouseEnter={() => setHighlighted(index)}
-                className={`flex w-full items-center gap-2 truncate px-3 py-1.5 text-left text-sm ${
-                  index === highlighted ? 'bg-accent-50 text-accent-700' : 'text-slate-700'
+                className={`flex w-full items-center gap-2 truncate rounded-lg px-3 py-1.5 text-left text-sm transition-colors duration-150 ${
+                  index === highlighted ? t.optionActive : t.option
                 }`}
               >
                 {selectOnly && (
                   <CheckIcon
-                    className={`h-3.5 w-3.5 shrink-0 ${option === value ? 'opacity-100' : 'opacity-0'}`}
+                    className={`h-3.5 w-3.5 shrink-0 text-gold ${option === value ? 'opacity-100' : 'opacity-0'}`}
                   />
                 )}
                 <span className="truncate">{option}</span>
@@ -161,8 +189,8 @@ export function Combobox({
                   select(trimmedQuery)
                 }}
                 onMouseEnter={() => setHighlighted(filtered.length)}
-                className={`block w-full truncate px-3 py-1.5 text-left text-sm font-medium ${
-                  filtered.length === highlighted ? 'bg-accent-50 text-accent-700' : 'text-accent-600'
+                className={`block w-full truncate rounded-lg px-3 py-1.5 text-left text-sm font-medium transition-colors duration-150 ${
+                  filtered.length === highlighted ? t.freeTextActive : t.freeText
                 }`}
               >
                 Adicionar “{trimmedQuery}”
